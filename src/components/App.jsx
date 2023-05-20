@@ -20,7 +20,9 @@ class App extends Component {
 
     showButton: false,
 
-    isLoading: false
+    isLoading: false,
+
+    totalHits: 1
   };
 
   openModal = (largeImageURL) => {
@@ -35,6 +37,12 @@ class App extends Component {
   }
 
   handleFormSubmit = (searchQuery) => {
+    if (searchQuery.trim() === "") {
+      // Викинути помилку або зробити відповідну обробку
+      console.error("Пошуковий запит не може бути пустим");
+      return;
+    }
+  
     this.setState({ searchQuery, page: 1, images: [], showButton: true });
   };
 
@@ -53,18 +61,19 @@ class App extends Component {
     const API_KEY = "35073531-a3301b6130ef0984d8d454ab2";
     const BASE_URL = `https://pixabay.com/api/?key=${API_KEY}&q=${searchQuery}&image_type=photo&per_page=12&page=${page}`;
     this.setState({ isLoading: true });
-
+  
     fetch(BASE_URL)
       .then((response) => response.json())
       .then((data) => {
         this.setState((prevState) => ({
           images: [...prevState.images, ...data.hits],
+          totalHits: data.totalHits // Оновлення totalHits
         }));
       })
       .catch((error) => console.log(error))
       .finally(() => {
         this.setState({ isLoading: false });
-      })
+      });
   };
 
   handleLoadMore = () => {
@@ -94,7 +103,8 @@ class App extends Component {
   
 
   render() {
-    const { images, showButton, isLoading} = this.state;
+    const { images, isLoading, totalHits} = this.state;
+    const showButton = images.length > 0 && images.length < totalHits;
     return (
       <div className="App">
         <Searchbar onSubmit={this.handleFormSubmit} />
@@ -105,7 +115,9 @@ class App extends Component {
 
         {/* <Loader /> */}
         
-        {showButton && (<Button onButtonClick={this.loadMoreImages} isHidden={images.length === 0} /> )}
+        {showButton && images.length < totalHits && (
+        <Button onButtonClick={this.loadMoreImages} isHidden={images.length === 0} />
+      )}
         {isLoading && <Loader />}
 
       </div>

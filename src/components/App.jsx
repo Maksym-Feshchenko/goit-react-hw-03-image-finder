@@ -67,7 +67,7 @@ class App extends Component {
       .then((data) => {
         this.setState((prevState) => ({
           images: [...prevState.images, ...data.hits],
-          totalHits: data.totalHits // Оновлення totalHits
+          totalHits: data.totalHits
         }));
       })
       .catch((error) => console.log(error))
@@ -83,46 +83,53 @@ class App extends Component {
   };
 
   loadMoreImages = () => {
-    const { searchQuery, page } = this.state;
+    const { searchQuery, page, images, totalHits } = this.state;
     const nextPage = page + 1;
+
+    if (images.length >= totalHits) {
+
+    console.log("Зображень більше немає");
+
+    return;
+  }
 
     this.setState({ isLoading: true });
   
-    loadMore(searchQuery, nextPage).then((newImages) => {
+    loadMore(searchQuery, nextPage)
+    .then((newImages) => {
       if (newImages.length > 0) {
         this.setState((prevState) => ({
           images: [...prevState.images, ...newImages],
           page: prevState.page + 1,
         }));
+      } else {
+        this.setState({ showButton: false });
+        console.log("Зображень більше немає");
       }
     })
     .finally(() => {
       this.setState({ isLoading: false });
     });
-  };
+};
   
 
-  render() {
-    const { images, isLoading, totalHits} = this.state;
-    const showButton = images.length > 0 && images.length < totalHits;
-    return (
-      <div className="App">
-        <Searchbar onSubmit={this.handleFormSubmit} />
+render() {
+  const { images, isLoading, totalHits, showButton } = this.state;
+  const noMoreImages = images.length >= totalHits && totalHits > 0;
 
-        
+  return (
+    <div className="App">
+      <Searchbar onSubmit={this.handleFormSubmit} />
+      <ImageGallery images={images} openModal={this.openModal} />
 
-        <ImageGallery images={images} openModal={this.openModal} />
-
-        {/* <Loader /> */}
-        
-        {showButton && images.length < totalHits && (
-        <Button onButtonClick={this.loadMoreImages} isHidden={images.length === 0} />
+      {showButton && !noMoreImages && (
+        <Button onButtonClick={this.loadMoreImages} />
       )}
-        {isLoading && <Loader />}
 
-      </div>
-    );
-  }
+      {isLoading && <Loader />}
+    </div>
+  );
+}
 }
 
 export default App

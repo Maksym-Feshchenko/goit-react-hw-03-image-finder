@@ -118,8 +118,8 @@ class App extends Component {
   
 
 render() {
-  const { images, isLoading, totalHits, showButton, page } = this.state;
-  const noMoreImages = images.length >= totalHits && totalHits > 0;
+  const { images, isLoading, totalHits, page } = this.state;
+  // const noMoreImages = images.length >= totalHits && totalHits > 0;
 
   return (
     <div className="App">

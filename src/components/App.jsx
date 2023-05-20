@@ -67,7 +67,9 @@ class App extends Component {
       .then((data) => {
         this.setState((prevState) => ({
           images: [...prevState.images, ...data.hits],
+          
           totalHits: data.totalHits
+          
         }));
       })
       .catch((error) => console.log(error))
@@ -78,7 +80,7 @@ class App extends Component {
 
   handleLoadMore = () => {
     if (this.setState((prevState) => ({ page: prevState.page + 1 }))) {
-    
+      // this.setState({ isLoading: false });
     };
   };
 
@@ -88,7 +90,9 @@ class App extends Component {
 
     if (images.length >= totalHits) {
 
-    console.log("Зображень більше немає");
+    // console.log("Зображень більше немає");
+    this.setState({ isLoading: false });
+   
 
     return;
   }
@@ -114,7 +118,7 @@ class App extends Component {
   
 
 render() {
-  const { images, isLoading, totalHits, showButton } = this.state;
+  const { images, isLoading, totalHits, showButton, page } = this.state;
   const noMoreImages = images.length >= totalHits && totalHits > 0;
 
   return (
@@ -122,7 +126,7 @@ render() {
       <Searchbar onSubmit={this.handleFormSubmit} />
       <ImageGallery images={images} openModal={this.openModal} />
 
-      {showButton && !noMoreImages && (
+      {totalHits / 12 > page && (
         <Button onButtonClick={this.loadMoreImages} />
       )}
 
